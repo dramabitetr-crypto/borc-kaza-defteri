@@ -31,6 +31,19 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Uygulama simgesi ve açılış ekranı
+        run: |
+          npx @capacitor/assets generate --android --iconBackgroundColor '#0E4D3A' --iconBackgroundColorDark '#0E4D3A' --splashBackgroundColor '#0E4D3A' --splashBackgroundColorDark '#0E4D3A'
+          ls android/app/src/main/res/mipmap-xxxhdpi/
+
+      - name: Bildirim izinleri ve bildirim simgesi
+        run: |
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's#</manifest>#    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />\n    <uses-permission android:name="android.permission.VIBRATE" />\n</manifest>#' $M
+          mkdir -p android/app/src/main/res/drawable
+          cp android-ek/drawable/ic_stat_cami.xml android/app/src/main/res/drawable/
+          grep -c "permission" $M
+
       - name: Sabit imza ve sürüm numarası
         run: |
           G=android/app/build.gradle

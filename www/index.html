@@ -64,20 +64,43 @@ textarea{min-height:110px;font-size:13px}
 .toast.goster{opacity:1}
 h3{margin:0 0 8px;font-size:16px}
 .not-kutu{font-size:13px;color:var(--soluk);line-height:1.45}
+/* Ezan vakitleri */
+.ev-ust{text-align:center}.ev-sonraki{font-size:15px;margin-top:8px;opacity:.9}.ev-sayac{font-variant-numeric:tabular-nums;font-size:40px;margin:2px 0 4px}
+.ev-satir{display:flex;justify-content:space-between;align-items:center;padding:11px 6px;border-bottom:1px solid var(--cizgi);font-size:16px}
+.ev-satir:last-child{border-bottom:0}.ev-satir b{font-variant-numeric:tabular-nums;font-size:18px}
+.ev-aktif{background:#E3EFE9;border-radius:10px;color:var(--yesil);font-weight:700}
+.ev-siradaki b{color:var(--altin)}
+.ev-tablo{font-size:12px;font-variant-numeric:tabular-nums;max-height:320px;overflow:auto}
+.ev-th,.ev-tr{display:grid;grid-template-columns:1.1fr repeat(6,1fr);gap:2px;padding:6px 2px;border-bottom:1px solid var(--cizgi);text-align:center}
+.ev-th{font-weight:700;color:var(--soluk);position:sticky;top:0;background:#fff}.ev-bugun{background:#E3EFE9;font-weight:700}
+select{appearance:auto}
+/* Zikirmatik */
+.zk-liste{margin-bottom:6px}
+.zk-alan{position:relative;width:min(78vw,300px);aspect-ratio:1;margin:8px auto 0;border-radius:50%;background:radial-gradient(circle at 50% 40%,#fff,#EFE9DC);box-shadow:0 8px 24px rgba(14,77,58,.18),inset 0 -6px 0 rgba(0,0,0,.05);cursor:pointer;touch-action:manipulation}
+.zk-alan.zk-tik{animation:zktik .12s}
+@keyframes zktik{50%{transform:scale(.97)}}
+.zk-halka{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.zk-iz{fill:none;stroke:#E6E0D4;stroke-width:14}.zk-dolu{fill:none;stroke:var(--yesil2);stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset .15s}
+.zk-orta{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.zk-ad{font-size:17px;font-weight:700;color:var(--yesil)}.zk-sayi{font-size:64px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}.zk-hedef{color:var(--soluk);font-size:14px}
+nav button{font-size:11px}
 </style>
 </head>
 <body>
-<header><button id="geri" style="display:none" aria-label="Geri">‹</button><h1 id="baslik">Borçlar</h1></header>
+<header><button id="geri" style="display:none" aria-label="Geri">‹</button><h1 id="baslik">Ezan Vakitleri</h1></header>
 <main id="icerik"></main>
 <button class="fab" id="fab">+ Kişi</button>
 <nav>
-  <button data-sayfa="borc" class="aktif"><span>💰</span>Borçlar</button>
-  <button data-sayfa="kaza"><span>🕌</span>Kaza Namazı</button>
+  <button data-sayfa="vakit" class="aktif"><span>🕌</span>Vakitler</button>
+  <button data-sayfa="zikir"><span>📿</span>Zikir</button>
+  <button data-sayfa="kaza"><span>🤲</span>Kaza</button>
+  <button data-sayfa="borc"><span>💰</span>Borçlar</button>
   <button data-sayfa="ayar"><span>⚙️</span>Ayarlar</button>
 </nav>
 <div class="perde" id="perde"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 
+<script src="ibadet.js"></script>
 <script>
 "use strict";
 /* ---------- VERİ ---------- */
@@ -104,7 +127,7 @@ function yukle(){
     const ham = localStorage.getItem(ANAHTAR);
     if(!ham) return bosVeri();
     const d = JSON.parse(ham), b = bosVeri();
-    return {kisiler:Array.isArray(d.kisiler)?d.kisiler:[], kur:Object.assign(b.kur,d.kur||{}), kaza:Object.assign(b.kaza,d.kaza||{})};
+    return {kisiler:Array.isArray(d.kisiler)?d.kisiler:[], kur:Object.assign(b.kur,d.kur||{}), kaza:Object.assign(b.kaza,d.kaza||{}), vakit:d.vakit, zikir:d.zikir};
   }catch(e){ return bosVeri(); }
 }
 function kaydet(){ try{ localStorage.setItem(ANAHTAR, JSON.stringify(V)); }catch(e){ toast("Kaydedilemedi!"); } }
@@ -170,7 +193,7 @@ async function kurGuncelle(sessiz){
 }
 
 /* ---------- SAYFALAR ---------- */
-let sayfa = "borc", aktifKisi = null;
+let sayfa = "vakit", aktifKisi = null;
 
 function ciz(){
   document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("aktif",b.dataset.sayfa===sayfa));
@@ -181,6 +204,8 @@ function ciz(){
   else fab.style.display="none";
   if(sayfa==="borc") aktifKisi ? kisiSayfasi() : borcSayfasi();
   else if(sayfa==="kaza") kazaSayfasi();
+  else if(sayfa==="vakit") vakitSayfasi();
+  else if(sayfa==="zikir") zikirSayfasi();
   else ayarSayfasi();
 }
 
@@ -337,7 +362,7 @@ function ayarSayfasi(){
     <div class="ikili"><button class="btn ikincil" id="yedekPaylas">📤 Yedeği paylaş</button><button class="btn ikincil" id="yedekYukle">📥 Yedeği yükle</button></div>
     <label>Yedek kodu</label><textarea id="yedekKutu" placeholder="Yedek kodunu buraya yapıştır"></textarea>
   </div>
-  <div class="kart"><h3>Hakkında</h3><p class="not-kutu" style="margin:0">Borç ve Kaza Defteri · sürüm 1.0<br>Reklamsız ilk sürüm. Verilerin hiçbir sunucuya gönderilmez; internet sadece kurları almak için kullanılır.</p></div>
+  <div class="kart"><h3>Hakkında</h3><p class="not-kutu" style="margin:0">Borç ve Kaza Defteri · sürüm 1.1<br>Ezan vakitleri, zikirmatik, kaza namazı ve borç takibi bir arada. Verilerin hiçbir sunucuya gönderilmez; internet yalnızca kurları ve ezan vakitlerini almak için kullanılır. Vakitler Diyanet İşleri Başkanlığı verileridir.</p></div>
   <button class="btn tehlike" id="hepsiniSil">Tüm verileri sil</button>`;
   $("#icerik").innerHTML=h;
   $("#kurGuncel").onclick=()=>kurGuncelle(false);
@@ -432,6 +457,9 @@ window.addEventListener("popstate",()=>{
 ciz();
 const sonKur=V.kur.tarih?Date.now()-new Date(V.kur.tarih):Infinity;
 if(sonKur>30*60*1000) kurGuncelle(true);
+if(!evGuncelMi()) evVakitleriIndir(true); else evBildirimKur();
+// Uygulama arka plandan dönünce vakit sayacını tazele
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden && (sayfa==="vakit"||sayfa==="zikir")) ciz(); });
 </script>
 </body>
 </html>

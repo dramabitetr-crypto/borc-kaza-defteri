@@ -3,6 +3,13 @@
   "appName": "Borç ve Kaza Defteri",
   "webDir": "www",
   "plugins": {
-    "CapacitorHttp": { "enabled": true }
-  }
+    "CapacitorHttp": {
+      "enabled": true
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_cami",
+      "iconColor": "#0E4D3A"
+    }
+  },
+  "backgroundColor": "#0E4D3A"
 }
