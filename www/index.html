@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E4D3A">
-<title>Borç ve Kaza Defteri</title>
+<title>Ezan Vakti, Kaza, Borç Defteri</title>
 <style>
 :root{--yesil:#0E4D3A;--yesil2:#16704F;--krem:#FAF6EE;--kart:#fff;--yazi:#1F2421;--soluk:#6B736E;--kirmizi:#C0392B;--altin:#C9A227;--cizgi:#E6E0D4}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -285,7 +285,7 @@ function kisiOzetMetni(k){
   if(!Object.keys(net).length) s+="• Hesap kapalı\n";
   s+=`Toplam (bugünkü kurla): ${tl(Math.abs(t))} ${t>0.5?"(bana borçlu)":t<-0.5?"(ben borçluyum)":""}\n\nHareketler:\n`;
   for(const e of [...k.kayitlar].sort((a,b)=>(a.tarih||"").localeCompare(b.tarih||""))) s+=`${tarihFmt(e.tarih)} ${e.yon==="verdim"?"Verdim":"Aldım"} ${birimFmt(e.miktar,e.birim)}${e.not?" – "+e.not:""}\n`;
-  return s+"\nBorç ve Kaza Defteri ile hazırlandı.";
+  return s+"\nEzan Vakti, Kaza, Borç Defteri ile hazırlandı.";
 }
 
 /* ---------- KAZA ---------- */
@@ -362,7 +362,7 @@ function ayarSayfasi(){
     <div class="ikili"><button class="btn ikincil" id="yedekPaylas">📤 Yedeği paylaş</button><button class="btn ikincil" id="yedekYukle">📥 Yedeği yükle</button></div>
     <label>Yedek kodu</label><textarea id="yedekKutu" placeholder="Yedek kodunu buraya yapıştır"></textarea>
   </div>
-  <div class="kart"><h3>Hakkında</h3><p class="not-kutu" style="margin:0">Borç ve Kaza Defteri · sürüm 1.1<br>Ezan vakitleri, zikirmatik, kaza namazı ve borç takibi bir arada. Verilerin hiçbir sunucuya gönderilmez; internet yalnızca kurları ve ezan vakitlerini almak için kullanılır. Vakitler Diyanet İşleri Başkanlığı verileridir.</p></div>
+  <div class="kart"><h3>Hakkında</h3><p class="not-kutu" style="margin:0">Ezan Vakti, Kaza, Borç Defteri · sürüm 1.2<br>Ezan vakitleri, zikirmatik, kaza namazı ve borç takibi bir arada. Verilerin hiçbir sunucuya gönderilmez; internet yalnızca kurları ve ezan vakitlerini almak için kullanılır. Vakitler Diyanet İşleri Başkanlığı verileridir.</p></div>
   <button class="btn tehlike" id="hepsiniSil">Tüm verileri sil</button>`;
   $("#icerik").innerHTML=h;
   $("#kurGuncel").onclick=()=>kurGuncelle(false);
@@ -372,7 +372,7 @@ function ayarSayfasi(){
   };
   $("#yedekPaylas").onclick=()=>{
     const kod="BKD1:"+btoa(unescape(encodeURIComponent(JSON.stringify(V))));
-    $("#yedekKutu").value=kod; paylas(kod,"Borç ve Kaza Defteri yedeği");
+    $("#yedekKutu").value=kod; paylas(kod,"Ezan Defteri yedeği");
   };
   $("#yedekYukle").onclick=()=>{
     const kod=$("#yedekKutu").value.trim();
@@ -436,7 +436,7 @@ function kayitModal(k,yon){
 async function paylas(metin,baslik){
   try{
     const S = window.Capacitor?.Plugins?.Share;
-    if(S){ await S.share({title:baslik||"Borç ve Kaza Defteri",text:metin,dialogTitle:"Paylaş"}); return; }
+    if(S){ await S.share({title:baslik||"Ezan Defteri",text:metin,dialogTitle:"Paylaş"}); return; }
     if(navigator.share){ await navigator.share({title:baslik,text:metin}); return; }
   }catch(e){ if(String(e).includes("cancel")) return; }
   try{ await navigator.clipboard.writeText(metin); toast("Panoya kopyalandı"); }

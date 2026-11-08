@@ -1,6 +1,6 @@
 {
   "appId": "tv.dukkan.borckaza",
-  "appName": "Borç ve Kaza Defteri",
+  "appName": "Ezan Defteri",
   "webDir": "www",
   "plugins": {
     "CapacitorHttp": {

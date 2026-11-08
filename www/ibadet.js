@@ -1,4 +1,4 @@
-/* Borç ve Kaza Defteri – Ezan vakitleri ve Zikirmatik
+/* Ezan Vakti, Kaza, Borç Defteri – Ezan vakitleri ve Zikirmatik
    Ana dosyadaki V (veri), kaydet(), toast(), $(), sayiFmt(), ciz() ve paylas() kullanılır. */
 "use strict";
 
