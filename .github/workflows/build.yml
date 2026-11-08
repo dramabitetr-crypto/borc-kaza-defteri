@@ -23,6 +23,15 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - name: Gradle önbelleği
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/wrapper/dists
+            ~/.gradle/caches
+          key: gradle-${{ runner.os }}-8-11-1-${{ hashFiles('package.json') }}
+          restore-keys: gradle-${{ runner.os }}-8-11-1-
+
       - name: Paketleri kur
         run: npm install
 
@@ -70,9 +79,9 @@ jobs:
           cd android
           chmod +x gradlew
           sed -i "s/networkTimeout=[0-9]*/networkTimeout=120000/" gradle/wrapper/gradle-wrapper.properties
-          for deneme in 1 2 3; do
+          for deneme in 1 2 3 4 5; do
             ./gradlew assembleDebug --no-daemon && exit 0
-            echo "Deneme $deneme başarısız, 30 sn sonra tekrar"; sleep 30
+            echo "Deneme $deneme başarısız, 45 sn sonra tekrar"; sleep 45
           done
           exit 1
 
