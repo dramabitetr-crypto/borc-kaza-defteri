@@ -1,0 +1,3 @@
+Bu anahtar YALNIZCA telefona elle kurulan deneme (debug) APK'ları içindir.
+Her derleme aynı anahtarla imzalansın diye burada duruyor; böylece yeni sürüm eskisinin üzerine kurulabilir.
+Play Store sürümü bu anahtarla imzalanmaz.
