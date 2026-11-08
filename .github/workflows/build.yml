@@ -56,7 +56,12 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          sed -i "s/networkTimeout=[0-9]*/networkTimeout=120000/" gradle/wrapper/gradle-wrapper.properties
+          for deneme in 1 2 3; do
+            ./gradlew assembleDebug --no-daemon && exit 0
+            echo "Deneme $deneme başarısız, 30 sn sonra tekrar"; sleep 30
+          done
+          exit 1
 
       - name: APK dosyasına isim ver
         run: mv android/app/build/outputs/apk/debug/app-debug.apk BorcKazaDefteri-v${{ github.run_number }}.apk
