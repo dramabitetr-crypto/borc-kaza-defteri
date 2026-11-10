@@ -1,3 +1,3 @@
-Bu anahtar YALNIZCA telefona elle kurulan deneme (debug) APK'ları içindir.
-Her derleme aynı anahtarla imzalansın diye burada duruyor; böylece yeni sürüm eskisinin üzerine kurulabilir.
-Play Store sürümü bu anahtarla imzalanmaz.
+Bu klasörde iki anahtar var:
+- debug.keystore: yalnızca telefona elle kurulan deneme APK'ları için (gizli değil).
+- yukleme.p12.enc: Play Store yükleme anahtarı, AES-256 ile şifreli. Şifresi depoda DEĞİL; GitHub'da YUKLEME_PAROLA adlı gizli değişkende duruyor.

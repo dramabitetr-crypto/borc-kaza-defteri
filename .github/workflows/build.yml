@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  YUKLEME_PAROLA: ${{ secrets.YUKLEME_PAROLA }}
+
 jobs:
   derle:
     runs-on: ubuntu-latest
@@ -53,6 +56,12 @@ jobs:
           cp android-ek/drawable/ic_stat_cami.xml android/app/src/main/res/drawable/
           grep -c "permission" $M
 
+      - name: Android 16 (API 36) hedefi
+        run: |
+          V=android/variables.gradle
+          sed -i -E "s/compileSdkVersion = [0-9]+/compileSdkVersion = 36/; s/targetSdkVersion = [0-9]+/targetSdkVersion = 36/" $V
+          grep -E "compileSdkVersion|targetSdkVersion|minSdkVersion" $V
+
       - name: Sabit imza ve sürüm numarası
         run: |
           G=android/app/build.gradle
@@ -88,9 +97,38 @@ jobs:
       - name: APK dosyasına isim ver
         run: mv android/app/build/outputs/apk/debug/app-debug.apk EzanVaktiDefteri-v${{ github.run_number }}.apk
 
+      - name: Play Store paketi (imzalı AAB)
+        if: ${{ env.YUKLEME_PAROLA != '' }}
+        env:
+          YUKLEME_PAROLA: ${{ secrets.YUKLEME_PAROLA }}
+        run: |
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in imza/yukleme.p12.enc -out "$RUNNER_TEMP/yukleme.p12" -pass env:YUKLEME_PAROLA
+          export YUKLEME_DOSYA="$RUNNER_TEMP/yukleme.p12"
+          python3 - <<'PY'
+          p = "android/app/build.gradle"
+          s = open(p).read()
+          s = s.replace("signingConfigs {", """signingConfigs {
+                  release {
+                      storeFile file(System.getenv("YUKLEME_DOSYA"))
+                      storePassword System.getenv("YUKLEME_PAROLA")
+                      keyAlias 'dukkantv'
+                      keyPassword System.getenv("YUKLEME_PAROLA")
+                      storeType 'pkcs12'
+                  }""", 1)
+          s = s.replace("minifyEnabled false", "minifyEnabled false\n            signingConfig signingConfigs.release", 1)
+          open(p, "w").write(s)
+          PY
+          cd android
+          ./gradlew bundleRelease --no-daemon
+          cd ..
+          mv android/app/build/outputs/bundle/release/app-release.aab EzanVaktiDefteri-v${{ github.run_number }}.aab
+          rm -f "$RUNNER_TEMP/yukleme.p12"
+
       - name: Sürüm sayfasına yükle
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
           name: Sürüm ${{ github.run_number }}
-          files: EzanVaktiDefteri-v${{ github.run_number }}.apk
+          files: |
+            EzanVaktiDefteri-v${{ github.run_number }}.apk
+            EzanVaktiDefteri-v${{ github.run_number }}.aab
